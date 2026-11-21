@@ -1,7 +1,7 @@
 
 /* =====================================
    NEXT00N - APOIE A NEXT00N
-   Integração com Mercado Pago
+   Integração Pix - PicPay
    ===================================== */
 
 
@@ -9,10 +9,8 @@
 
 const CONFIG = {
 
-    // URL pública do backend Python no Render.
-    // Exemplo: https://apoie-nextoon.onrender.com
-
-    BACKEND_URL: "https://SEU-BACKEND.onrender.com",
+    // Cole aqui o Pix Copia e Cola do PicPay.
+    PIX_CODE: "COLE_SEU_CODIGO_PIX_AQUI",
 
     MIN_AMOUNT: 1,
     MAX_AMOUNT: 10000
@@ -42,8 +40,6 @@ const paymentMessage = document.getElementById("paymentMessage");
 let selectedValue = 5;
 
 let customMode = false;
-
-let paymentProcessing = false;
 
 
 /* FORMATAR MOEDA */
@@ -76,8 +72,6 @@ function updateAmount(value) {
 amountButtons.forEach(button => {
 
     button.addEventListener("click", () => {
-
-        if (paymentProcessing) return;
 
         amountButtons.forEach(item => {
             item.classList.remove("selected");
@@ -116,8 +110,6 @@ amountButtons.forEach(button => {
 
 customInput.addEventListener("input", () => {
 
-    if (paymentProcessing) return;
-
     const value = Number(customInput.value);
 
     updateAmount(value > 0 ? value : 0);
@@ -137,109 +129,13 @@ function showMessage(message, type = "info") {
 }
 
 
-/* ESTADO DO BOTÃO */
+/* COPIAR PIX */
 
-function setButtonLoading(loading) {
-
-    donateButton.disabled = loading;
-
-    if (loading) {
-
-        donateButton.innerHTML = `
-            Preparando pagamento...
-            <i class="fa-solid fa-spinner fa-spin"></i>
-        `;
-
-    } else {
-
-        donateButton.innerHTML = `
-            Contribuir agora
-            <i class="fa-solid fa-arrow-right"></i>
-        `;
-
-    }
-
-}
-
-
-/* CRIAR PAGAMENTO */
-
-async function createPayment(amount) {
-
-    if (!CONFIG.BACKEND_URL) {
-
-        throw new Error(
-            "O endereço do servidor não foi configurado."
-        );
-
-    }
-
-    const response = await fetch(
-        `${CONFIG.BACKEND_URL.replace(/\/+$/, "")}/criar-pagamento`,
-        {
-            method: "POST",
-
-            headers: {
-                "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-                amount: amount
-            })
-        }
-    );
-
-    let data;
-
-    try {
-
-        data = await response.json();
-
-    } catch {
-
-        throw new Error(
-            "O servidor retornou uma resposta inválida."
-        );
-
-    }
-
-    if (!response.ok) {
-
-        throw new Error(
-            data.erro || "Não foi possível iniciar o pagamento."
-        );
-
-    }
-
-    if (
-        data.status !== "success" ||
-        typeof data.init_point !== "string" ||
-        !data.init_point.startsWith("https://")
-    ) {
-
-        throw new Error(
-            "O servidor não retornou um link de pagamento válido."
-        );
-
-    }
-
-    return data.init_point;
-
-}
-
-
-/* INICIAR CONTRIBUIÇÃO */
-
-async function startDonation() {
-
-    if (paymentProcessing) return;
+async function copyPixCode() {
 
     const amount = customMode
         ? Number(customInput.value)
         : selectedValue;
-
-
-    // Validar valor
 
     if (
         !Number.isFinite(amount) ||
@@ -248,7 +144,7 @@ async function startDonation() {
     ) {
 
         showMessage(
-            "Digite um valor válido entre R$ 1 e R$ 10.000.",
+            "Escolha um valor entre R$ 1 e R$ 10.000.",
             "error"
         );
 
@@ -256,50 +152,50 @@ async function startDonation() {
 
     }
 
-
-    // Validar casas decimais
-
-    if (Math.round(amount * 100) !== amount * 100) {
+    if (
+        !CONFIG.PIX_CODE ||
+        CONFIG.PIX_CODE === "COLE_SEU_CODIGO_PIX_AQUI"
+    ) {
 
         showMessage(
-            "Utilize no máximo duas casas decimais.",
+            "O código Pix ainda não foi configurado.",
             "error"
         );
 
         return;
 
     }
-
-
-    // Bloquear novos cliques
-
-    paymentProcessing = true;
-
-    setButtonLoading(true);
-
-    showMessage("Preparando sua contribuição...");
-
 
     try {
 
-        const checkoutURL = await createPayment(amount);
+        await navigator.clipboard.writeText(CONFIG.PIX_CODE);
 
-        showMessage("Redirecionando para o Mercado Pago...");
+        showMessage(
+            `Código Pix copiado! Abra seu banco, cole o código e informe ${formatCurrency(amount)}.`
+        );
 
-        window.location.assign(checkoutURL);
+        donateButton.innerHTML = `
+            Pix copiado!
+            <i class="fa-solid fa-check"></i>
+        `;
+
+        setTimeout(() => {
+
+            donateButton.innerHTML = `
+                Copiar código Pix
+                <i class="fa-solid fa-copy"></i>
+            `;
+
+        }, 3000);
 
     } catch (error) {
 
-        console.error("Erro ao criar pagamento:", error);
+        console.error("Erro ao copiar Pix:", error);
 
         showMessage(
-            error.message || "Ocorreu um erro. Tente novamente.",
+            "Não foi possível copiar automaticamente. Tente novamente ou use outro navegador.",
             "error"
         );
-
-        paymentProcessing = false;
-
-        setButtonLoading(false);
 
     }
 
@@ -308,10 +204,9 @@ async function startDonation() {
 
 /* EVENTO DO BOTÃO */
 
-donateButton.addEventListener("click", startDonation);
+donateButton.addEventListener("click", copyPixCode);
 
 
 /* INICIALIZAÇÃO */
 
 updateAmount(5);
-
