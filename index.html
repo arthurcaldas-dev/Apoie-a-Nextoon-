@@ -1,6 +1,7 @@
 
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -257,6 +258,8 @@
                     </div>
 
 
+                    <!-- VALORES -->
+
                     <div class="amount-options">
 
                         <button class="amount selected" data-value="5">
@@ -286,6 +289,8 @@
                     </div>
 
 
+                    <!-- VALOR PERSONALIZADO -->
+
                     <div class="custom-input" id="customContainer" hidden>
 
                         <label for="customAmount">
@@ -293,6 +298,7 @@
                         </label>
 
                         <div class="money-input">
+
                             <span>R$</span>
 
                             <input
@@ -303,10 +309,13 @@
                                 step="0.01"
                                 placeholder="0,00"
                             >
+
                         </div>
 
                     </div>
 
+
+                    <!-- RESUMO -->
 
                     <div class="amount-summary">
 
@@ -319,21 +328,35 @@
                     </div>
 
 
+                    <!-- BOTÃO PIX -->
+
                     <button class="donate-button" id="donateButton">
 
-                        Contribuir agora
+                        Copiar código Pix
 
-                        <i class="fa-solid fa-arrow-right"></i>
+                        <i class="fa-solid fa-copy"></i>
 
                     </button>
 
 
+                    <!-- INFORMAÇÕES -->
+
                     <div class="payment-info">
-                        <i class="fa-solid fa-lock"></i>
-                        Pagamento processado pelo Mercado Pago.
+
+                        <i class="fa-solid fa-shield-halved"></i>
+
+                        Contribuição via Pix - PicPay.
+
                     </div>
 
-                    <p class="payment-message" id="paymentMessage" role="status"></p>
+
+                    <p class="payment-message" id="paymentMessage" role="status" aria-live="polite"></p>
+
+
+                    <p class="payment-note">
+                        Após copiar o código, abra o aplicativo do seu banco,
+                        cole o Pix e confira o valor antes de confirmar.
+                    </p>
 
                 </div>
 
@@ -401,14 +424,21 @@
             <span>nextoon</span>
         </a>
 
-        <p>© 2026 Nextoon. Todos os direitos reservados.</p>
+        <p>
+            © 2026 Nextoon. Todos os direitos reservados.
+        </p>
 
-        <span>Feito para quem ama histórias.</span>
+        <span>
+            Feito para quem ama histórias.
+        </span>
 
     </footer>
 
 
+    <!-- JAVASCRIPT -->
+
     <script src="script.js"></script>
 
 </body>
+
 </html>
